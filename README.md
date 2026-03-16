@@ -40,7 +40,10 @@ Machine Learning:
 
 ## Repository Structure
 
-docs/ → requirements and architecture
+docs/
+
+requirements and architecture
+
 frontend/ → web application
 backend/ → API and server logic
 ml/ → machine learning models
