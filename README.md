@@ -40,9 +40,9 @@ Machine Learning:
 
 ## Repository Structure
 
-- docs/ → requirements and architecture
-- frontend/ → web application
-- backend/ → API and server logic
-- ml/ → machine learning models
-- data/ → datasets and videos
-- scripts/ → utility scripts
+docs/ → requirements and architecture
+frontend/ → web application
+backend/ → API and server logic
+ml/ → machine learning models
+data/ → datasets and videos
+scripts/ → utility scripts
