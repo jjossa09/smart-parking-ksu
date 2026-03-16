@@ -37,15 +37,3 @@ Computer Vision:
 Machine Learning:
 - Random Forest
 - SVM?
-
-## Repository Structure
-
-docs/
-
-requirements and architecture
-
-frontend/ → web application
-backend/ → API and server logic
-ml/ → machine learning models
-data/ → datasets and videos
-scripts/ → utility scripts
