@@ -1,9 +1,15 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 
-// Mapped to the vertical parking structure shown near Hornet Village/Level 1
+// ==========================================
+// 1. KSU PARKING MAP COORDINATES
+// ==========================================
+// This object acts as the glue between the Artificial Intelligence and the Web UI.
+// The backend OpenCV script detects shapes and labels them "A1", "A2", etc.
+// This structure maps those arbitrary labels to exact X/Y percentage coordinates 
+// on top of the 'ksu_map.png' background image, creating the final real-world overlay.
 const mapCoordinates = {
-  // Lot A - Left vertical column
+  // Lot A - Left vertical column (Closest to Hornet Village Building 100)
   "A1": { top: '25%', left: '42%' },
   "A2": { top: '30%', left: '42%' },
   "A3": { top: '35%', left: '42%' },
@@ -27,12 +33,21 @@ const mapCoordinates = {
   "B10": { top: '70%', left: '50%' },
 };
 
+// ==========================================
+// 2. MAIN REACT COMPONENT
+// ==========================================
 function App() {
+  // React State Hooks:
+  // `spots` holds the live array data beamed down from the Python OpenCV AI.
+  // Example: [{id: "A1", isOccupied: true}, {id: "A2", isOccupied: false}]
   const [spots, setSpots] = useState([]);
+  
+  // `isConnected` tracks if the WebSocket successfully tunneled to the Python 8000 port.
   const [isConnected, setIsConnected] = useState(false);
 
+  // The `useEffect` hook runs exactly once when the web app first loads in the browser.
   useEffect(() => {
-    // Connect to the Python FastAPI WebSocket server
+    // Attempt to open a live, real-time funnel directly to the Python backend
     const ws = new WebSocket('ws://localhost:8000/ws');
 
     ws.onopen = () => {
@@ -40,11 +55,13 @@ function App() {
       setIsConnected(true);
     };
 
+    // This block fires every single time Python detects a new frame on the CCTV camera (1x/sec).
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
         if (data.type === 'update') {
-          // Replace our local react state perfectly with the latest OpenCV data
+          // Immediately overwrite the React UI state with the fresh AI payload.
+          // This triggers React to re-render the screen instantly.
           setSpots(data.spots);
         }
       } catch (err) {
@@ -57,16 +74,25 @@ function App() {
       setIsConnected(false);
     };
 
+    // Cleanup: If the user closes the browser tab, terminate the connection gracefully.
     return () => {
       ws.close();
     };
-  }, []);
+  }, []); // Empty dependency array means this WebSocket logic only bootstraps once.
 
+  // ==========================================
+  // 3. UI DATA CALCULATIONS
+  // ==========================================
+  // We compute total numbers from the raw array the AI sends us mathematically
   const availableSpots = spots.filter(s => !s.isOccupied).length;
   const occupiedSpots = spots.length - availableSpots;
 
+  // ==========================================
+  // 4. BROWSER JSX RENDERING
+  // ==========================================
   return (
     <div className="dashboard-container">
+      {/* Top Header Navigation */}
       <header className="dashboard-header">
         <div className="logo-container">
           <h1 className="text-gradient">
@@ -83,6 +109,8 @@ function App() {
             KSU Smart Parking
           </h1>
         </div>
+        
+        {/* Dynamic Status Indicator: Green if connected, Gray if server is dead */}
         <div 
           className="status-indicator" 
           style={{ filter: isConnected ? 'none' : 'grayscale(100%)' }}
@@ -92,6 +120,7 @@ function App() {
         </div>
       </header>
 
+      {/* Top Metric Cards (Calculated from state on lines 82-83) */}
       <div className="stats-grid">
         <div className="stat-card glass-panel">
           <span className="stat-label">Available Spots</span>
@@ -103,15 +132,21 @@ function App() {
         </div>
         <div className="stat-card glass-panel">
           <span className="stat-label">Total Capacity</span>
+          {/* Default to 20 spots if the AI payload drops out to prevent UI jumping */}
           <span className="stat-value value-total">{spots.length || 20}</span>
         </div>
       </div>
 
+      {/* Main Map Visualization Area */}
       <main className="parking-lot-section">
         <h2 className="section-title text-gradient">Campus Lot A - Live Map</h2>
         
+        {/*
+          This container draws the 'ksu_map.png' background. Every spot is drawn as a child of this div
+          using `position: absolute` so it can 'float' on top of the real map correctly.
+        */}
         <div className="glass-panel map-container">
-           {/* Fallback text if backend is disconnected */}
+           {/* Fallback Warning Box if the connection failed or dataset is empty */}
            {!isConnected && spots.length === 0 && (
              <div className="map-overlay-message">
                 <h3>Waiting for Python AI Backend...</h3>
@@ -119,10 +154,14 @@ function App() {
              </div>
            )}
 
-           {/* The mapped spots overlaid on the generic map container */}
+           {/* 
+             The Core Loop: For every parking spot the AI says exists, render a dot.
+             Lookup its physical X/Y location from `mapCoordinates` (Line 9).
+             Color it Green ('available') or Red ('occupied') based on OpenCV analysis.
+           */}
            {spots.map(spot => {
              const coords = mapCoordinates[spot.id];
-             if (!coords) return null; // Safety check
+             if (!coords) return null; // Safety check in case the AI emits a spot not on our map
 
              return (
                <div 
