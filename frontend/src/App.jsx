@@ -1,7 +1,33 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 
-// We start with an empty layout and let the server populate it.
+// For the hackathon demo, we map the backend IDs to specific X,Y percentage coordinates
+// overlaid on top of the KSU map screenshot.
+const mapCoordinates = {
+  // Lot A Top Row
+  "A1": { top: '35%', left: '20%' },
+  "A2": { top: '35%', left: '26%' },
+  "A3": { top: '35%', left: '32%' },
+  "A4": { top: '35%', left: '38%' },
+  "A5": { top: '35%', left: '44%' },
+  "A6": { top: '35%', left: '50%' },
+  "A7": { top: '35%', left: '56%' },
+  "A8": { top: '35%', left: '62%' },
+  "A9": { top: '35%', left: '68%' },
+  "A10": { top: '35%', left: '74%' },
+  // Lot B Bottom Row
+  "B1": { top: '65%', left: '20%' },
+  "B2": { top: '65%', left: '26%' },
+  "B3": { top: '65%', left: '32%' },
+  "B4": { top: '65%', left: '38%' },
+  "B5": { top: '65%', left: '44%' },
+  "B6": { top: '65%', left: '50%' },
+  "B7": { top: '65%', left: '56%' },
+  "B8": { top: '65%', left: '62%' },
+  "B9": { top: '65%', left: '68%' },
+  "B10": { top: '65%', left: '74%' },
+};
+
 function App() {
   const [spots, setSpots] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
@@ -78,41 +104,40 @@ function App() {
         </div>
         <div className="stat-card glass-panel">
           <span className="stat-label">Total Capacity</span>
-          <span className="stat-value value-total">{spots.length}</span>
+          <span className="stat-value value-total">{spots.length || 20}</span>
         </div>
       </div>
 
       <main className="parking-lot-section">
         <h2 className="section-title text-gradient">Campus Lot A - Live Map</h2>
         
-        {!isConnected && spots.length === 0 ? (
-           <div className="glass-panel" style={{padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)'}}>
-              <h3>Waiting for Python AI Backend...</h3>
-              <p>Please ensure `server.py` is running to send video detection data.</p>
-           </div>
-        ) : (
-          <div className="glass-panel parking-grid">
-            <div className="parking-row">
-              {spots.slice(0, 10).map(spot => (
-                <div key={spot.id} className={`parking-spot ${spot.isOccupied ? 'occupied' : 'available'}`}>
-                  <span className="spot-label">{spot.id}</span>
-                  <span className="spot-icon">{spot.isOccupied ? '🚗' : '✨'}</span>
-                </div>
-              ))}
-            </div>
+        <div className="glass-panel map-container">
+           {/* Fallback text if backend is disconnected */}
+           {!isConnected && spots.length === 0 && (
+             <div className="map-overlay-message">
+                <h3>Waiting for Python AI Backend...</h3>
+                <p>Ensure `server.py` and `create_mask.py` are running properly.</p>
+             </div>
+           )}
 
-            <div className="roadway"></div>
+           {/* The mapped spots overlaid on the generic map container */}
+           {spots.map(spot => {
+             const coords = mapCoordinates[spot.id];
+             if (!coords) return null; // Safety check
 
-            <div className="parking-row">
-              {spots.slice(10, 20).map(spot => (
-                <div key={spot.id} className={`parking-spot ${spot.isOccupied ? 'occupied' : 'available'}`}>
-                  <span className="spot-label">{spot.id}</span>
-                  <span className="spot-icon">{spot.isOccupied ? '🚗' : '✨'}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+             return (
+               <div 
+                 key={spot.id} 
+                 className={`map-pin ${spot.isOccupied ? 'occupied' : 'available'}`}
+                 style={{ top: coords.top, left: coords.left }}
+                 title={`Spot ${spot.id} is ${spot.isOccupied ? 'Occupied' : 'Available'}`}
+               >
+                 <div className="pin-pulse"></div>
+                 <span className="pin-label">{spot.id}</span>
+               </div>
+             );
+           })}
+        </div>
       </main>
     </div>
   );
