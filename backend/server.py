@@ -41,7 +41,6 @@ class ConnectionManager:
                 logger.error(f"Error sending message to client: {e}")
 
 manager = ConnectionManager()
-detector = ParkingDetector()
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -60,6 +59,9 @@ async def broadcast_parking_status():
     # Give the server a moment to start before beginning detection loop
     await asyncio.sleep(2)
     
+    logger.info("Initializing OpenCV Engine...")
+    detector = ParkingDetector()
+    
     logger.info("Starting parking detection loop...")
     while True:
         try:
@@ -67,13 +69,13 @@ async def broadcast_parking_status():
             current_spots = detector.get_current_spots()
             
             # Broadcast the state to all connected React clients
-            await manager.broadcast(json.dumps({
-                "type": "update",
-                "spots": current_spots
-            }))
+            if len(manager.active_connections) > 0:
+                await manager.broadcast(json.dumps({
+                    "type": "update",
+                    "spots": current_spots
+                }))
             
-            # Wait a short time before analyzing the next frame
-            # 1 second is usually fine for parking lots, it doesn't need to equal video framerate
+            # Send updates every second
             await asyncio.sleep(1.0)
             
         except Exception as e:

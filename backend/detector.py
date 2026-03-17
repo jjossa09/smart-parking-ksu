@@ -27,11 +27,15 @@ class ParkingDetector:
             with open(self.mask_path, 'r') as f:
                 self.spot_definitions = json.load(f)
             logger.info(f"Loaded {len(self.spot_definitions)} spots from mask.")
-        else:
+        
+        # Fallback to hardcoded coordinates if mask isn't built yet
+        if len(self.spot_definitions) == 0:
             logger.warning("No mask.json found! Using fallback locations.")
-            # Fallback to the hardcoded coordinates from earlier if mask isn't built yet
+            # Lot A
             for i in range(10):
                 self.spot_definitions.append({"id": f"A{i+1}", "coords": (50 + (i * 110), 50, 100, 150)})
+            # Lot B
+            for i in range(10):
                 self.spot_definitions.append({"id": f"B{i+1}", "coords": (50 + (i * 110), 250, 100, 150)})
 
         # Initialize the state dictionary for the React frontend

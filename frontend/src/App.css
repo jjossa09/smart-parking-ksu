@@ -107,8 +107,7 @@
   width: 100%;
   aspect-ratio: 16/9; /* Standard wide map format */
   background-color: var(--bg-secondary);
-  /* Fallback color/gradient if user hasn't uploaded ksu_map.png yet */
-  background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('./assets/ksu_map.png');
+  background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('/ksu_map.png');
   background-size: cover;
   background-position: center;
   border-radius: var(--radius-lg);
@@ -126,6 +125,7 @@
   text-align: center;
   border: 1px solid var(--glass-border);
   backdrop-filter: blur(10px);
+  z-index: 50;
 }
 
 .map-overlay-message h3 {

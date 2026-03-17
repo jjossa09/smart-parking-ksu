@@ -1,31 +1,30 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 
-// For the hackathon demo, we map the backend IDs to specific X,Y percentage coordinates
-// overlaid on top of the KSU map screenshot.
+// Mapped to the vertical parking structure shown near Hornet Village/Level 1
 const mapCoordinates = {
-  // Lot A Top Row
-  "A1": { top: '35%', left: '20%' },
-  "A2": { top: '35%', left: '26%' },
-  "A3": { top: '35%', left: '32%' },
-  "A4": { top: '35%', left: '38%' },
-  "A5": { top: '35%', left: '44%' },
-  "A6": { top: '35%', left: '50%' },
-  "A7": { top: '35%', left: '56%' },
-  "A8": { top: '35%', left: '62%' },
-  "A9": { top: '35%', left: '68%' },
-  "A10": { top: '35%', left: '74%' },
-  // Lot B Bottom Row
-  "B1": { top: '65%', left: '20%' },
-  "B2": { top: '65%', left: '26%' },
-  "B3": { top: '65%', left: '32%' },
-  "B4": { top: '65%', left: '38%' },
-  "B5": { top: '65%', left: '44%' },
-  "B6": { top: '65%', left: '50%' },
-  "B7": { top: '65%', left: '56%' },
-  "B8": { top: '65%', left: '62%' },
-  "B9": { top: '65%', left: '68%' },
-  "B10": { top: '65%', left: '74%' },
+  // Lot A - Left vertical column
+  "A1": { top: '25%', left: '42%' },
+  "A2": { top: '30%', left: '42%' },
+  "A3": { top: '35%', left: '42%' },
+  "A4": { top: '40%', left: '42%' },
+  "A5": { top: '45%', left: '42%' },
+  "A6": { top: '50%', left: '42%' },
+  "A7": { top: '55%', left: '42%' },
+  "A8": { top: '60%', left: '42%' },
+  "A9": { top: '65%', left: '42%' },
+  "A10": { top: '70%', left: '42%' },
+  // Lot B - Right vertical column next to Lot A
+  "B1": { top: '25%', left: '50%' },
+  "B2": { top: '30%', left: '50%' },
+  "B3": { top: '35%', left: '50%' },
+  "B4": { top: '40%', left: '50%' },
+  "B5": { top: '45%', left: '50%' },
+  "B6": { top: '50%', left: '50%' },
+  "B7": { top: '55%', left: '50%' },
+  "B8": { top: '60%', left: '50%' },
+  "B9": { top: '65%', left: '50%' },
+  "B10": { top: '70%', left: '50%' },
 };
 
 function App() {
