@@ -171,7 +171,6 @@ Multiple models will be tested and evaluated for performance:
 
 - Random Forest
 - Support Vector Machine (SVM)
-- Convolutional Neural Network (CNN)
 
 Each cropped parking spot image will be processed and classified to produce a binary output.
 
