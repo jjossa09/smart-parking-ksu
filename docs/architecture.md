@@ -58,7 +58,7 @@ The following diagram illustrates the high-level architecture of the system.
              v
 +---------------------------+
 |  Machine Learning Model   |
-| Random Forest / SVM / CNN |
+| Random Forest / SVM /     |
 |   Binary Classification   |
 +------------+--------------+
              |
