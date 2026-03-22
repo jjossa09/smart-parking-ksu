@@ -189,7 +189,7 @@ function App() {
                <div className="hover-toast glass-panel">
                  <span style={{fontWeight: 700}}>Spot {hoveredSpot}</span>: 
                  <span style={{marginLeft: '0.5rem', color: lotData.spots.find(s => s.id === hoveredSpot)?.isOccupied ? 'var(--status-occupied)' : 'var(--status-available)'}}>
-                     {lotData.spots.find(s => s.id === hoveredSpot)?.isOccupied ? 'Occupied 🚗' : 'Available ✨'}
+                     {lotData.spots.find(s => s.id === hoveredSpot)?.isOccupied ? 'Occupied' : 'Available'}
                  </span>
                </div>
             )}
