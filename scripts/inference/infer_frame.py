@@ -31,17 +31,31 @@ def load_spots(spots_path):
 def crop_polygon_region(frame, polygon_points):
     pts = np.array(polygon_points, dtype=np.int32)
 
-    x, y, w, h = cv2.boundingRect(pts)
-    crop = frame[y:y+h, x:x+w].copy()
+    frame_h, frame_w = frame.shape[:2]
 
-    shifted_pts = pts - np.array([x, y])
+    pts[:, 0] = np.clip(pts[:, 0], 0, frame_w - 1)
+    pts[:, 1] = np.clip(pts[:, 1], 0, frame_h - 1)
 
-    mask = np.zeros((h, w), dtype=np.uint8)
+    x_min = int(np.min(pts[:, 0]))
+    x_max = int(np.max(pts[:, 0]))
+    y_min = int(np.min(pts[:, 1]))
+    y_max = int(np.max(pts[:, 1]))
+
+    crop = frame[y_min:y_max, x_min:x_max].copy()
+
+    if crop.size == 0:
+        raise ValueError(f"Empty crop for polygon: {polygon_points}")
+
+    shifted_pts = pts - np.array([x_min, y_min])
+
+    mask = np.zeros(crop.shape[:2], dtype=np.uint8)
     cv2.fillPoly(mask, [shifted_pts], 255)
+
+    print("crop shape:", crop.shape, "| mask shape:", mask.shape)
 
     masked_crop = cv2.bitwise_and(crop, crop, mask=mask)
 
-    return masked_crop, (x, y, w, h), pts
+    return masked_crop, (x_min, y_min, x_max - x_min, y_max - y_min), pts
 
 
 def main():
@@ -70,7 +84,8 @@ def main():
     for spot in spots:
         spot_id = spot["id"]
         polygon_points = spot["points"]
-
+        
+        print(f"Processing spot {spot_id} with points: {polygon_points}")
         masked_crop, bbox, pts = crop_polygon_region(frame, polygon_points)
         pred = predict_spot(masked_crop, model)
         predictions.append(pred)
