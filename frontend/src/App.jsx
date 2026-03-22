@@ -1,14 +1,25 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 
-// We start with an empty layout and let the server populate it.
 function App() {
-  const [spots, setSpots] = useState([]);
+  const [lotData, setLotData] = useState({
+    lotName: "Campus Lot A - Live Map",
+    frameImage: null,
+    totalSpots: 0,
+    availableSpots: 0,
+    occupiedSpots: 0,
+    spots: [],
+    timestamp: null
+  });
+  
   const [isConnected, setIsConnected] = useState(false);
+  const [imgDim, setImgDim] = useState({ w: 1280, h: 720 });
+  const [hoveredSpot, setHoveredSpot] = useState(null);
 
   useEffect(() => {
-    // Connect to the Python FastAPI WebSocket server
-    const ws = new WebSocket('ws://localhost:8000/ws');
+    // Connect to the local FastAPI WebSocket
+    const wsUrl = 'ws://localhost:8000/ws';
+    const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
       console.log('Connected to Smart Parking Server');
@@ -19,8 +30,15 @@ function App() {
       try {
         const data = JSON.parse(event.data);
         if (data.type === 'update') {
-          // Replace our local react state perfectly with the latest OpenCV data
-          setSpots(data.spots);
+          setLotData({
+            lotName: data.lotName || "Parking Lot",
+            frameImage: data.frameImage,
+            totalSpots: data.totalSpots || 0,
+            availableSpots: data.availableSpots || 0,
+            occupiedSpots: data.occupiedSpots || 0,
+            spots: data.spots || [],
+            timestamp: data.timestamp
+          });
         }
       } catch (err) {
         console.error("Error parsing websocket message", err);
@@ -37,8 +55,17 @@ function App() {
     };
   }, []);
 
-  const availableSpots = spots.filter(s => !s.isOccupied).length;
-  const occupiedSpots = spots.length - availableSpots;
+  const handleImageLoad = (e) => {
+    // This allows the SVG viewBox to match the image's original coordinate system perfectly!
+    // We only update if dimensions are truly different to prevent infinite looping re-renders 
+    // since the img src base64 gets updated 10 times a second perfectly synced with WebSockets.
+    if (imgDim.w !== e.target.naturalWidth || imgDim.h !== e.target.naturalHeight) {
+      setImgDim({
+        w: e.target.naturalWidth,
+        h: e.target.naturalHeight
+      });
+    }
+  };
 
   return (
     <div className="dashboard-container">
@@ -63,54 +90,109 @@ function App() {
           style={{ filter: isConnected ? 'none' : 'grayscale(100%)' }}
         >
           <div className="status-dot"></div>
-          {isConnected ? 'LIVE BACKEND CONNECTED' : 'BACKEND DISCONNECTED'}
+          {isConnected ? 'LIVE INTERFACE' : 'BACKEND DISCONNECTED'}
         </div>
       </header>
 
       <div className="stats-grid">
         <div className="stat-card glass-panel">
-          <span className="stat-label">Available Spots</span>
-          <span className="stat-value value-available">{availableSpots}</span>
+          <span className="stat-label">Available Spaces</span>
+          <span className="stat-value value-available">{lotData.availableSpots}</span>
         </div>
         <div className="stat-card glass-panel">
           <span className="stat-label">Occupied</span>
-          <span className="stat-value value-occupied">{occupiedSpots}</span>
+          <span className="stat-value value-occupied">{lotData.occupiedSpots}</span>
         </div>
         <div className="stat-card glass-panel">
           <span className="stat-label">Total Capacity</span>
-          <span className="stat-value value-total">{spots.length}</span>
+          <span className="stat-value value-total">{lotData.totalSpots}</span>
         </div>
       </div>
 
       <main className="parking-lot-section">
-        <h2 className="section-title text-gradient">Campus Lot A - Live Map</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h2 className="section-title text-gradient">{lotData.lotName}</h2>
+          {lotData.timestamp && (
+            <span style={{color: 'var(--text-secondary)', fontSize: '0.875rem'}}>
+              Data Last Updated: {new Date(lotData.timestamp).toLocaleTimeString()}
+            </span>
+          )}
+        </div>
         
-        {!isConnected && spots.length === 0 ? (
+        {!isConnected && lotData.spots.length === 0 ? (
            <div className="glass-panel" style={{padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)'}}>
               <h3>Waiting for Python AI Backend...</h3>
-              <p>Please ensure `server.py` is running to send video detection data.</p>
+              <p>Please ensure backend is running using `uvicorn app.main:app` and ML predictions have started.</p>
            </div>
         ) : (
-          <div className="glass-panel parking-grid">
-            <div className="parking-row">
-              {spots.slice(0, 10).map(spot => (
-                <div key={spot.id} className={`parking-spot ${spot.isOccupied ? 'occupied' : 'available'}`}>
-                  <span className="spot-label">{spot.id}</span>
-                  <span className="spot-icon">{spot.isOccupied ? '🚗' : '✨'}</span>
-                </div>
-              ))}
-            </div>
+          <div className="map-container glass-panel">
+            {lotData.frameImage ? (
+              <img 
+                src={lotData.frameImage} 
+                className="parking-image" 
+                alt="Live Parking Lot Feed" 
+                onLoad={handleImageLoad}
+              />
+            ) : (
+              <div className="image-placeholder">Loading Camera Feed...</div>
+            )}
+            
+            <svg 
+              className="map-overlay" 
+              viewBox={`0 0 ${imgDim.w} ${imgDim.h}`}
+              preserveAspectRatio="xMidYMid slice"
+            >
+              <defs>
+                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="3" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
 
-            <div className="roadway"></div>
+              {lotData.spots.map(spot => {
+                // Formatting [[x1,y1], [x2,y2]] into "x1,y1 x2,y2"
+                const pointsStr = spot.polygon.map(coord => coord.join(',')).join(' ');
+                
+                // Calculate centroid for placing the label beautifully in the center of the polygon
+                let cx = 0; let cy = 0;
+                spot.polygon.forEach(coord => { cx += coord[0]; cy += coord[1]; });
+                cx /= spot.polygon.length;
+                cy /= spot.polygon.length;
 
-            <div className="parking-row">
-              {spots.slice(10, 20).map(spot => (
-                <div key={spot.id} className={`parking-spot ${spot.isOccupied ? 'occupied' : 'available'}`}>
-                  <span className="spot-label">{spot.id}</span>
-                  <span className="spot-icon">{spot.isOccupied ? '🚗' : '✨'}</span>
-                </div>
-              ))}
-            </div>
+                return (
+                  <g key={spot.id}>
+                    <polygon 
+                      points={pointsStr}
+                      className={`spot-polygon ${spot.isOccupied ? 'occupied' : 'available'}`}
+                      onMouseEnter={() => setHoveredSpot(spot.id)}
+                      onMouseLeave={() => setHoveredSpot(null)}
+                    />
+                    
+                    {/* Render ID Label if available, or if hovered */}
+                    {!spot.isOccupied && (
+                      <text 
+                        x={cx} 
+                        y={cy} 
+                        className="spot-label-svg"
+                        dominantBaseline="middle"
+                        textAnchor="middle"
+                      >
+                        {spot.label}
+                      </text>
+                    )}
+                  </g>
+                );
+              })}
+            </svg>
+
+            {hoveredSpot && (
+               <div className="hover-toast glass-panel">
+                 <span style={{fontWeight: 700}}>Spot {hoveredSpot}</span>: 
+                 <span style={{marginLeft: '0.5rem', color: lotData.spots.find(s => s.id === hoveredSpot)?.isOccupied ? 'var(--status-occupied)' : 'var(--status-available)'}}>
+                     {lotData.spots.find(s => s.id === hoveredSpot)?.isOccupied ? 'Occupied 🚗' : 'Available ✨'}
+                 </span>
+               </div>
+            )}
           </div>
         )}
       </main>
