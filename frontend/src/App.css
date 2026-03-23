@@ -93,7 +93,6 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  width: 100%;
 }
 
 .section-title {
@@ -101,111 +100,99 @@
   margin-bottom: 1rem;
 }
 
-/* KSU Map Container */
+/* Map Overlay Container Layout */
 .map-container {
   position: relative;
   width: 100%;
-  aspect-ratio: 16/9; /* Standard wide map format */
-  background-color: var(--bg-secondary);
-  background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('/ksu_map.png');
-  background-size: cover;
-  background-position: center;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-}
-
-.map-overlay-message {
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(10, 11, 16, 0.85);
-  padding: 2rem 3rem;
   border-radius: var(--radius-md);
-  text-align: center;
-  border: 1px solid var(--glass-border);
-  backdrop-filter: blur(10px);
-  z-index: 50;
+  overflow: hidden;
+  box-shadow: var(--glass-shadow);
+  background-color: #000;
 }
 
-.map-overlay-message h3 {
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
-}
-
-.map-overlay-message p {
+.image-placeholder {
   color: var(--text-secondary);
+  font-size: 1.25rem;
+  font-weight: 500;
 }
 
-/* Status Pins overlaying the map */
-.map-pin {
+.parking-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
+/* SVG Overlay */
+.map-overlay {
   position: absolute;
-  width: 30px;
-  height: 30px;
-  transform: translate(-50%, -50%); /* Center exact coordinate */
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Let hover pass through the SVG wrapper to the polygons */
+}
+
+/* Polygon Styles */
+.spot-polygon {
+  pointer-events: visibleFill; /* Ensure hover triggers on the shapes themselves */
   cursor: pointer;
-  transition: all var(--transition-normal);
-  z-index: 10;
+  stroke-width: 2;
+  transition: all var(--transition-fast);
 }
 
-.map-pin:hover {
-  transform: translate(-50%, -50%) scale(1.2);
-  z-index: 20;
+.spot-polygon.available {
+  fill: rgba(16, 185, 129, 0.35); /* Greenish */
+  stroke: var(--status-available);
 }
 
-.pin-label {
-  position: absolute;
-  top: -25px;
-  font-size: 0.75rem;
+.spot-polygon.available:hover {
+  fill: rgba(16, 185, 129, 0.6);
+  filter: url(#glow);
+}
+
+.spot-polygon.occupied {
+  fill: rgba(239, 68, 68, 0.35); /* Redish */
+  stroke: rgba(239, 68, 68, 0.7);
+}
+
+.spot-polygon.occupied:hover {
+  fill: rgba(239, 68, 68, 0.6);
+}
+
+/* SVG Text labels */
+.spot-label-svg {
+  fill: #fff;
+  font-family: inherit;
+  font-size: 18px;
   font-weight: 700;
-  background: var(--bg-primary);
-  padding: 0.15rem 0.5rem;
-  border-radius: var(--radius-sm);
-  opacity: 0;
-  transition: opacity var(--transition-fast);
-  border: 1px solid var(--glass-border);
   pointer-events: none;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.8);
 }
 
-.map-pin:hover .pin-label {
-  opacity: 1;
-}
-
-/* Occupied Pin (Red Cross/Dot) */
-.map-pin.occupied {
-  background: var(--status-occupied);
-  border: 2px solid white;
-  box-shadow: 0 0 15px var(--status-occupied-glow);
-}
-
-/* Available Pin (Green Glowing Dot) */
-.map-pin.available {
-  background: var(--status-available);
-  border: 2px solid white;
-}
-
-.map-pin.available .pin-pulse {
+/* Absolute Hover tooltip */
+.hover-toast {
   position: absolute;
-  width: 100%; height: 100%;
-  border-radius: 50%;
-  background: transparent;
-  border: 2px solid var(--status-available);
-  animation: radar-pulse 2s infinite ease-out;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-full);
+  z-index: 10;
+  pointer-events: none;
+  font-size: 1.125rem;
+  animation: fade-in 0.2s ease-out;
 }
 
-@keyframes radar-pulse {
-  0% { transform: scale(1); opacity: 1; }
-  100% { transform: scale(3); opacity: 0; }
+@keyframes fade-in {
+  from { opacity: 0; transform: translate(-50%, 10px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
 }
 
 @media (max-width: 768px) {
   .dashboard-header {
     flex-direction: column;
-    align-items: flex-start;
+    align-items:flex-start;
     gap: 1rem;
   }
 }
