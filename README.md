@@ -1,6 +1,6 @@
 # Smart Parking KSU
 
-Real-time parking lot availability detection using YOLOv8. Built by **JESDAF** for the Bank of America hackathon Phase 2, Kennesaw State University.
+Real-time parking lot availability detection using YOLOv8. Built by **JESDAF** for the Bank of America hackathon, Kennesaw State University.
 
 Open a browser, pick a video, watch parking spots light up green (empty) or red (occupied) in real time. Scan a QR code on your phone and it works there too.
 
