@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b0f14" />
+  <title>Smart Parking KSU</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ========================================================== -->
+  <!-- SCREEN 1: MAIN MENU                                         -->
+  <!-- ========================================================== -->
+  <div id="screen-menu" class="screen">
+    <header class="app-header">
+      <h1>Smart Parking KSU</h1>
+      <p class="subtitle">JESDAF · Phase 2</p>
+    </header>
+
+    <main class="menu-buttons">
+      <button id="btn-select-video" class="primary-btn">
+        Select Video
+      </button>
+
+      <button id="btn-detect-spots" class="primary-btn" disabled>
+        Detect Spots
+      </button>
+
+      <button id="btn-end-program" class="secondary-btn">
+        End Program
+      </button>
+    </main>
+
+    <footer class="status-bar">
+      <span id="menu-status">No video selected</span>
+    </footer>
+  </div>
+
+  <!-- ========================================================== -->
+  <!-- SCREEN 2: VIDEO PREVIEW                                     -->
+  <!-- ========================================================== -->
+  <div id="screen-preview" class="screen hidden">
+    <header class="app-header">
+      <h2>Preview</h2>
+      <p class="subtitle" id="preview-video-name">—</p>
+    </header>
+
+    <main class="preview-container">
+      <div class="video-picker">
+        <label for="video-select">Choose a video:</label>
+        <select id="video-select">
+          <option value="">Loading…</option>
+        </select>
+      </div>
+
+      <div class="frame-wrapper">
+        <img id="preview-image" alt="Preview frame with parking spots outlined" />
+      </div>
+    </main>
+
+    <footer class="screen-footer">
+      <button id="btn-preview-back" class="secondary-btn">
+        ← Back to Main Menu
+      </button>
+    </footer>
+  </div>
+
+  <!-- ========================================================== -->
+  <!-- SCREEN 3: LIVE DETECTION                                    -->
+  <!-- ========================================================== -->
+  <div id="screen-detection" class="screen hidden">
+    <header class="app-header">
+      <h2>Live Detection</h2>
+      <p class="subtitle" id="detection-video-name">—</p>
+    </header>
+
+    <main class="detection-container">
+      <div class="counts-overlay">
+        <div class="count-card">
+          <div class="count-label">Total</div>
+          <div class="count-value" id="count-total">—</div>
+        </div>
+        <div class="count-card available">
+          <div class="count-label">Available</div>
+          <div class="count-value" id="count-available">—</div>
+        </div>
+        <div class="count-card occupied">
+          <div class="count-label">Occupied</div>
+          <div class="count-value" id="count-occupied">—</div>
+        </div>
+      </div>
+
+      <div class="frame-wrapper">
+        <img id="live-image" alt="Live annotated parking lot frame" />
+      </div>
+
+      <div class="meta-line">
+        <span id="detection-status">Connecting…</span>
+      </div>
+    </main>
+
+    <footer class="screen-footer detection-footer">
+      <div class="spots-switcher">
+        <label for="spots-select">Spot layout</label>
+        <select id="spots-select">
+          <option value="">Loading…</option>
+        </select>
+      </div>
+      <button id="btn-detection-back" class="secondary-btn">
+        ← Stop & Back
+      </button>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "frame_index": 930,
+  "timestamp_sec": 37.2,
+  "total_spots": 19,
+  "available_spots": 13,
+  "occupied_spots": 6,
+  "spots": [
+    0,
+    0,
+    0,
+    1,
+    0,
+    1,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    0,
+    1,
+    0,
+    0,
+    0,
+    1
+  ]
+}

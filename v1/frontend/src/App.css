@@ -1,0 +1,217 @@
+/* App specific styles built on top of index.css */
+
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  width: 100%;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.logo-container h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--status-available);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-full);
+  font-weight: 500;
+  font-size: 0.875rem;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  animation: pulse-glow 2s infinite;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--status-available);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--status-available);
+}
+
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 0 0 var(--status-available-glow); }
+  70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.stat-card {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.value-available { color: var(--status-available); text-shadow: 0 0 20px var(--status-available-glow); }
+.value-occupied { color: var(--status-occupied); }
+.value-total { color: var(--text-primary); }
+
+.parking-lot-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.parking-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+  padding: 2rem;
+}
+
+.parking-spot {
+  position: relative;
+  aspect-ratio: 16/9;
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-weight: 600;
+  font-size: 1.25rem;
+  cursor: default;
+  transition: all var(--transition-fast);
+  overflow: hidden;
+}
+
+.parking-spot.available {
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: var(--status-available);
+}
+
+.parking-spot.available::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  box-shadow: inset 0 0 20px var(--status-available-glow);
+  pointer-events: none;
+}
+
+.parking-spot.occupied {
+  background: rgba(239, 68, 68, 0.05);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: var(--status-occupied);
+  opacity: 0.7;
+}
+
+.parking-spot:hover {
+  transform: scale(1.05);
+  z-index: 10;
+}
+
+.parking-spot.available:hover {
+  background: rgba(16, 185, 129, 0.1);
+  box-shadow: 0 0 30px var(--status-available-glow);
+}
+
+.spot-label {
+  z-index: 2;
+  font-size: 1.5rem;
+}
+
+.spot-icon {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  opacity: 0.8;
+  z-index: 2;
+}
+
+/* Layout for two rows of parking spots to simulate a lot */
+.parking-row {
+  display: contents;
+}
+
+.roadway {
+  grid-column: 1 / -1;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.02);
+  border-top: 2px dashed rgba(255, 255, 255, 0.1);
+  border-bottom: 2px dashed rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle animation for the roadway line */
+.roadway::before {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 2px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 20px,
+    rgba(255, 255, 255, 0.2) 20px,
+    rgba(255, 255, 255, 0.2) 40px
+  );
+  animation: moveRoad 10s linear infinite;
+}
+
+@keyframes moveRoad {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items:flex-start;
+    gap: 1rem;
+  }
+  .parking-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+}

@@ -1,0 +1,14 @@
+# backend/requirements.txt
+# Install into the SAME venv you used for Day 1:
+#   .venv-yolo\Scripts\activate
+#   pip install -r backend\requirements.txt
+#
+# ultralytics, opencv-python, and numpy are already installed from Day 1
+# but listed here so a fresh clone works with one command.
+
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+python-multipart==0.0.9
+ultralytics>=8.2.0
+opencv-python>=4.9.0
+numpy>=1.26.0

@@ -1,0 +1,23 @@
+# Reference dataset config for PKLot fine-tuning.
+#
+# IMPORTANT: This file is for documentation only. The actual training run
+# uses the data.yaml that ships inside the Roboflow PKLot download (paths
+# inside it point at /content/PKLot-*/train, /valid, /test on Colab).
+#
+# Keep this file so teammates can see the expected format without having
+# to download the dataset.
+
+path: ../datasets/pklot      # dataset root, relative to ultralytics yolo settings
+train: train/images
+val:   valid/images
+test:  test/images
+
+# PKLot has two classes: occupied and empty parking spaces.
+# YOLO returns these as box detections — our pipeline will only use the
+# "space-occupied" class for assignment. The "space-empty" class is useful
+# during training because it teaches the model what a real parking spot
+# looks like even when no car is present.
+nc: 2
+names:
+  0: space-empty
+  1: space-occupied
